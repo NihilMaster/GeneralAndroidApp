@@ -1,15 +1,80 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:background="#FFCC80"
-    android:gravity="center">
+    android:background="@color/memory_light_items">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:background="@color/memory_light_items"
+        android:gravity="center">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/MF_tab1_title"
+            android:textColor="@color/memory_dark_items"
+            android:textSize="24sp" />
+
+        <TextView
+            android:id="@+id/random_number"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/lorem_ipsum"
+            android:textColor="@color/memory_dark_items"
+            android:textSize="46sp"
+            android:layout_margin="20dp"/>
+
+        <EditText
+            android:id="@+id/input_number"
+            android:autofillHints=""
+            android:visibility="invisible"
+            android:enabled="false"
+            android:inputType="number"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:hint="@string/lorem_ipsum"
+            android:textColor="@color/dark_details"
+            android:textSize="24sp"/>
+
+        <Button
+            android:id="@+id/btn_gen_check"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/MF_tab1_btn_generate"
+            android:textColor="@color/memory_light_items"
+            android:backgroundTint="@color/memory_dark_items"
+            android:layout_marginTop="100dp"/>
+
+        <Button
+            android:id="@+id/btn_start"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/MF_tab1_btn_start"
+            android:textColor="@color/memory_light_items"
+            android:backgroundTint="@color/memory_dark_items"/>
+
+        <Button
+            android:id="@+id/btn_temp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:backgroundTint="@color/black"
+            android:text="Temporal"/>
+
+    </LinearLayout>
 
     <TextView
+        android:id="@+id/max_score"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Pestaña 1"
-        android:textSize="24sp" />
+        android:textColor="@color/memory_dark_items"
+        android:textSize="10sp"
+        android:text="@string/MF_tab1_tv_max_score"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentStart="true"
+        tools:ignore="SmallSp"/>
 
-</LinearLayout>
+</RelativeLayout>

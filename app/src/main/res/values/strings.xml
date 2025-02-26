@@ -7,10 +7,18 @@
     <string name="nav_header_desc">Navigation header</string>
     <string name="action_settings">Settings</string>
 
-    <string name="menu_home">Home</string>
-    <string name="menu_memory">Memory</string>
-    <string name="menu_slideshow">Slideshow</string>
+    <string name="menu_home">Inizio</string>
+    <string name="menu_memory">Memoria</string>
+    <string name="menu_slideshow">…</string>
 
-    <string name="idk_memory">SharedPreferences \n Agregar el número/palabra a un par\n clave-valor.</string>
     <string name="lorem_ipsum">AYUDA</string>
+
+    <!-- Memory -->
+    <!--    Tab 1    -->
+    <string name="MF_tab1_title">Ricorda il numero</string>
+    <string name="MF_tab1_btn_generate">Genera</string>
+    <string name="MF_tab1_btn_check">Verifica</string>
+    <string name="MF_tab1_btn_start">Inizia</string>
+    <string name="MF_tab1_tv_max_score">MAX: %s</string>
+
 </resources>
