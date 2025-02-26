@@ -1,7 +1,6 @@
 package zzz.master.general;
 
 import android.os.Bundle;
-import android.view.View;
 import android.view.Menu;
 
 import com.google.android.material.snackbar.Snackbar;
@@ -47,6 +46,7 @@ public class MainActivity extends AppCompatActivity {
         // NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment_content_main);
         NavHostFragment navHostFragment = (NavHostFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.nav_host_fragment_content_main);
+        assert navHostFragment != null;
         NavController navController = navHostFragment.getNavController();
 
         NavigationUI.setupActionBarWithNavController(this, navController, mAppBarConfiguration);
