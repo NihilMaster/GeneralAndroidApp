@@ -2,7 +2,6 @@ package zzz.master.general.ui.adapters;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentActivity;
 import androidx.viewpager2.adapter.FragmentStateAdapter;
 
 import zzz.master.general.ui.memory.miniMemoryFragments.Fragment1;
