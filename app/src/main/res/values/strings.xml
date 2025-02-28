@@ -8,12 +8,14 @@
     <string name="action_settings">Settings</string>
 
     <string name="menu_home">Inizio</string>
-    <string name="menu_memory">Memoria</string>
     <string name="menu_slideshow">…</string>
 
     <string name="lorem_ipsum">AYUDA</string>
+    <string name="correct">CORRETTO</string>
+    <string name="incorrect">INCORRETTO</string>
 
     <!-- Memory -->
+    <string name="menu_memory">Memoria</string>
     <!--    Tab 1    -->
     <string name="MF_tab1_title">Ricorda il numero</string>
     <string name="MF_tab1_btn_generate">Genera</string>
