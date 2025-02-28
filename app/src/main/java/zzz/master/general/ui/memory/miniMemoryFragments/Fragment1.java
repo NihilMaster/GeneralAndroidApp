@@ -1,7 +1,8 @@
 package zzz.master.general.ui.memory.miniMemoryFragments;
 
 import android.os.Bundle;
-import android.util.Log;
+import android.os.Handler;
+import android.os.Looper;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -11,20 +12,37 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.ViewModelProvider;
 
 import java.util.Random;
 
 import zzz.master.general.R;
+import zzz.master.general.ui.memory.MemoryViewModel;
 import zzz.master.general.utils.PrefsUtil;
 
 public class Fragment1 extends Fragment {
+
+    /**
+     * SharedPreferences
+     * _________________
+     * MF_random_number - Número aleatorio a recordar (String)
+     * MF_random_grade  - Número de cifras del número aleatorio (String)
+     * MF_is_time       - Bandera para determinar si el tiempo ha concluido (Boolean)
+     * MF_strike        - Número de intentos fallidos (String)
+     * MF_max_score     - Máximo puntaje (String)
+     */
+
+    private MemoryViewModel memoryViewModel;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_memory_tab1, container, false);
 
+        memoryViewModel = new ViewModelProvider(requireActivity()).get(MemoryViewModel.class);
+
         PrefsUtil prefsUtil = new PrefsUtil(requireContext());
 
+        // View items
         TextView numberTextView = view.findViewById(R.id.random_number);
         TextView maxScoreTextView = view.findViewById(R.id.max_score);
         EditText inputNumber = view.findViewById(R.id.input_number);
@@ -32,79 +50,70 @@ public class Fragment1 extends Fragment {
         Button startButton = view.findViewById(R.id.btn_start);
         Button tempButton = view.findViewById(R.id.btn_temp);
 
-        if(prefsUtil.getBoolean("MF_clean",true)){ //VACÍO
-            Log.println(Log.ASSERT,"DEBUG","VACÍO");
-            prefsUtil.setBoolean("MF_clean",false);
-            prefsUtil.setString("MF_random_grade","5");
-        }else if(prefsUtil.getBoolean("MF_is_time",false)){ //BLOQUEADO
-            Log.println(Log.ASSERT,"DEBUG","BLOQUEADO");
-        }else{ // RESPONDER
-            Log.println(Log.ASSERT,"DEBUG","RESPONDER");
-        }
+        // Actualización del máximo
+        maxScoreTextView.setText(getString(R.string.MF_tab1_tv_max_score,
+                prefsUtil.getString("MF_max_score", "0")));
 
+        // Botón de generar-verificar
         generate_checkButton.setOnClickListener(view1 -> {
-            if(prefsUtil.getBoolean("MF_is_time",true)){
-                if(inputNumber.getText().toString().equals(prefsUtil.getString("MF_random_number","00000"))){
-                    Toast.makeText(requireContext(), "CORRECTO", Toast.LENGTH_SHORT).show();
-                    int actual = Integer.parseInt(prefsUtil.getString("MF_max_score","0"));
-                    int grade = Integer.parseInt(prefsUtil.getString("MF_random_grade","5"));
-                    prefsUtil.setString("MF_max_score", grade>actual ? String.valueOf(grade) : String.valueOf(actual));
+            if(prefsUtil.getBoolean("MF_is_time",true)){ // VERIFICAR
+                if(inputNumber.getText().toString().equals(prefsUtil.getString("MF_random_number","00000"))){ // CORRECTO
+                    Toast.makeText(requireContext(), R.string.correct, Toast.LENGTH_SHORT).show();
+
+                    // Actualización del máximo
+                    int maxScore = Integer.parseInt(prefsUtil.getString("MF_max_score","0"));
+                    int currentGrade = Integer.parseInt(prefsUtil.getString("MF_random_grade","5"));
+                    prefsUtil.setString("MF_max_score", currentGrade>maxScore ? String.valueOf(currentGrade) : String.valueOf(maxScore));
                     maxScoreTextView.setText(getString(R.string.MF_tab1_tv_max_score,
                             prefsUtil.getString("MF_max_score", "0")));
                     prefsUtil.setString("MF_random_grade",manage_range(prefsUtil,true).toString());
 
-                    //maxScoreTextView.setText("MAX: "+prefsUtil.getString("MF_max_score","0"));
-                    /*String response =  manage_range(prefsUtil,true).toString();
-                    Toast.makeText(requireContext(), "CORRECTO: "+response
-                            + prefsUtil.getString("MF_strike","")
-                            , Toast.LENGTH_LONG).show();
-                    prefsUtil.setString("MF_random_grade",response);*/
-
+                    // Aparición de la animación
+                    memoryViewModel.setItemVisibility(true);
+                    makeDisable(generate_checkButton);
+                    new Handler(Looper.getMainLooper()).postDelayed(() -> {
+                        memoryViewModel.setItemVisibility(false);
+                        makeEnable(generate_checkButton);
+                    }, 800);
                 }
-                else{
-                    Toast.makeText(requireContext(), "INCORRECTO", Toast.LENGTH_SHORT).show();
+                else{ // INCORRECTO
+                    Toast.makeText(requireContext(), R.string.incorrect, Toast.LENGTH_SHORT).show();
                     prefsUtil.setString("MF_random_grade",manage_range(prefsUtil,false).toString());
-
-                    /*String response =  manage_range(prefsUtil,false).toString();
-                    Toast.makeText(requireContext(), "INCORRECTO: "+response
-                            + prefsUtil.getString("MF_strike","")
-                            , Toast.LENGTH_LONG).show();
-                    prefsUtil.setString("MF_random_grade",response);*/
                 }
+
+                // Resetear UI
                 prefsUtil.setBoolean("MF_is_time",false);
                 numberTextView.setText(prefsUtil.getString("MF_random_number","00000"));
                 inputNumber.setVisibility(View.INVISIBLE);
-                inputNumber.setEnabled(false);
                 inputNumber.setText("");
                 generate_checkButton.setText(R.string.MF_tab1_btn_generate);
-                startButton.setEnabled(false);
-                tempButton.setEnabled(false);
-            }else{
+                makeDisable(inputNumber, startButton, tempButton);
+            }else{ // GENERAR
                 prefsUtil.setString("MF_random_number",random_digit(Integer.parseInt(prefsUtil.getString("MF_random_grade","5"))));
                 numberTextView.setText(prefsUtil.getString("MF_random_number","00000"));
-                generate_checkButton.setEnabled(false);
-                startButton.setEnabled(true);
-                tempButton.setEnabled(true);
+                makeDisable(generate_checkButton);
+                makeEnable(startButton, tempButton);
             }
         });
 
+        // Botón de iniciar
         startButton.setOnClickListener(view2 -> {
             numberTextView.setText("*".repeat(Integer.parseInt(prefsUtil.getString("MF_random_grade","5"))));
-            generate_checkButton.setEnabled(false);
-            startButton.setEnabled(false);
-            tempButton.setEnabled(true);
+            makeEnable(tempButton);
+            makeDisable(generate_checkButton, startButton);
         });
 
+        // Botón temporal que simula el paso del tiempo
         tempButton.setOnClickListener(view3 -> {
             prefsUtil.setBoolean("MF_is_time",true);
             inputNumber.setVisibility(View.VISIBLE);
-            inputNumber.setEnabled(true);
+            inputNumber.requestFocus();
             generate_checkButton.setText(R.string.MF_tab1_btn_check);
-            generate_checkButton.setEnabled(true);
-            tempButton.setEnabled(false);
+            makeEnable(inputNumber, generate_checkButton);
+            makeDisable(tempButton);
         });
 
-        return view;//inflater.inflate(R.layout.fragment_memory_tab1, container, false);
+        return view; // inflater.inflate(R.layout.fragment_memory_tab1, container, false);
     }
 
     private String random_digit (int n){
@@ -139,4 +148,25 @@ public class Fragment1 extends Fragment {
             }
         }
     }
+
+    private void makeEnable(View... views) {
+        for (View view : views) {
+            if (view != null) {
+                view.setEnabled(true);
+                view.setAlpha(1.0f);
+            }
+        }
+    }
+
+    private void makeDisable(View... views){
+        for (View view : views) {
+            if (view != null) {
+                view.setEnabled(false);
+                view.setAlpha(0.5f);
+            }
+        }
+    }
+
+
+
 }
