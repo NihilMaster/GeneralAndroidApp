@@ -1,11 +1,13 @@
 package zzz.master.general.ui.memory.miniMemoryFragments;
 
+import android.content.Context;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
@@ -20,7 +22,7 @@ import zzz.master.general.R;
 import zzz.master.general.ui.memory.MemoryViewModel;
 import zzz.master.general.utils.PrefsUtil;
 
-public class Fragment1 extends Fragment {
+public class Tab1 extends Fragment {
 
     /**
      * SharedPreferences
@@ -84,7 +86,7 @@ public class Fragment1 extends Fragment {
                 // Resetear UI
                 prefsUtil.setBoolean("MF_is_time",false);
                 numberTextView.setText(prefsUtil.getString("MF_random_number","00000"));
-                inputNumber.setVisibility(View.INVISIBLE);
+                inputNumber.setVisibility(View.GONE);
                 inputNumber.setText("");
                 generate_checkButton.setText(R.string.MF_tab1_btn_generate);
                 makeDisable(inputNumber, startButton, tempButton);
@@ -107,10 +109,18 @@ public class Fragment1 extends Fragment {
         tempButton.setOnClickListener(view3 -> {
             prefsUtil.setBoolean("MF_is_time",true);
             inputNumber.setVisibility(View.VISIBLE);
-            inputNumber.requestFocus();
-            generate_checkButton.setText(R.string.MF_tab1_btn_check);
             makeEnable(inputNumber, generate_checkButton);
             makeDisable(tempButton);
+            generate_checkButton.setText(R.string.MF_tab1_btn_check);
+            new Handler(Looper.getMainLooper()).postDelayed(inputNumber::requestFocus, 100);
+            new Handler(Looper.getMainLooper()).postDelayed(() -> {
+                InputMethodManager imm = (InputMethodManager) requireContext().getSystemService(Context.INPUT_METHOD_SERVICE);
+                if (imm != null) {
+                    imm.showSoftInput(inputNumber, InputMethodManager.SHOW_IMPLICIT);
+                }
+            }, 100);
+
+
         });
 
         return view; // inflater.inflate(R.layout.fragment_memory_tab1, container, false);

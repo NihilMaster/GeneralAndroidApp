@@ -1,5 +1,7 @@
 package zzz.master.general.ui.memory;
 
+import android.annotation.SuppressLint;
+import android.content.pm.ActivityInfo;
 import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -67,9 +69,19 @@ public class MemoryFragment extends Fragment {
         }).attach();
     }
 
+    @SuppressLint("SourceLockedOrientationActivity")
+    @Override
+    public void onResume() {
+        super.onResume();
+        // Bloquear la rotación de pantalla en este Fragment
+        requireActivity().setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT); // Fija la orientación vertical
+    }
+
     @Override
     public void onDestroyView() {
         super.onDestroyView();
         binding = null;
+        // Restaurar la orientación de pantalla al salir del Fragment
+        requireActivity().setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED);
     }
 }
