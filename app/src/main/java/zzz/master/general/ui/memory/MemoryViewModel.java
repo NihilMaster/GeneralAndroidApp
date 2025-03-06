@@ -4,16 +4,34 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
+import java.util.List;
+import java.util.Map;
+
 public class MemoryViewModel extends ViewModel {
 
-    private final MutableLiveData<Boolean> isItemVisible = new MutableLiveData<>();
+    private final MutableLiveData<Boolean> isGifVisible = new MutableLiveData<>();
+    private final MutableLiveData<String> t1RandomNumber = new MutableLiveData<>();
 
-    public LiveData<Boolean> getItemVisibility() {
-        return isItemVisible;
+    private final MutableLiveData<List<Boolean>> t1UIState = new MutableLiveData<>();
+
+    public LiveData<Boolean> getGifVisibility() { return isGifVisible; }
+    public LiveData<String> getT1RandomNumber() { return t1RandomNumber; }
+    public LiveData<List<Boolean>> getT1UIState() { return t1UIState; }
+
+    public void setGifVisibility(Boolean visible) { isGifVisible.setValue(visible); }
+    public void setT1RandomNumber(String num) { t1RandomNumber.setValue(num); }
+    public void setT1UIState(String stateName) {
+        t1UIState.setValue(getT1UIStateDefinition(stateName));
     }
 
-    public void setItemVisibility(Boolean visible) {
-        isItemVisible.setValue(visible);
-    }
+    private List<Boolean> getT1UIStateDefinition(String stateName){
+        Map<String, List<Boolean>> states = Map.of(
+                "generated", List.of(false, true, false, true, false),
+                "hidden",    List.of(false, false, true, false, false),
+                "waited",    List.of(true, false, false, false, true),
+                "zeroday", List.of(true, false, false, true, false)
+        );                       // G, I, T, N, E
 
+        return states.getOrDefault(stateName, states.get("zeroday"));
+    }
 }
