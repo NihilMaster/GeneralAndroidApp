@@ -54,7 +54,6 @@ public class MemoryFragment extends Fragment {
         return root;
     }
 
-
     private void setupViewPager() {
         // Obtén referencias al TabLayout y ViewPager2
         TabLayout tabLayout = binding.tabLayout;
