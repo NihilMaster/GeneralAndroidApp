@@ -7,6 +7,7 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.WindowManager;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
@@ -37,7 +38,7 @@ public class MemoryFragment extends Fragment {
         MemoryViewModel memoryViewModel = new ViewModelProvider(requireActivity()).get(MemoryViewModel.class);
 
         // Observar cambios en la visibilidad del elemento
-        memoryViewModel.getItemVisibility().observe(getViewLifecycleOwner(), isVisible -> {
+        memoryViewModel.getGifVisibility().observe(getViewLifecycleOwner(), isVisible -> {
             binding.gifCongratsView.setVisibility(isVisible ? View.VISIBLE : View.GONE);
             Glide.with(this).asGif().load(R.drawable.dog_congrats).into(binding.gifCongratsView);
             if (isVisible){
@@ -75,6 +76,12 @@ public class MemoryFragment extends Fragment {
         super.onResume();
         // Bloquear la rotación de pantalla en este Fragment
         requireActivity().setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT); // Fija la orientación vertical
+
+        // Bloquear capturas de pantalla
+        requireActivity().getWindow().setFlags(
+                WindowManager.LayoutParams.FLAG_SECURE,
+                WindowManager.LayoutParams.FLAG_SECURE
+        );
     }
 
     @Override
@@ -83,5 +90,8 @@ public class MemoryFragment extends Fragment {
         binding = null;
         // Restaurar la orientación de pantalla al salir del Fragment
         requireActivity().setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED);
+
+        // Restaurar la posibilidad de capturas de pantalla
+        requireActivity().getWindow().clearFlags(WindowManager.LayoutParams.FLAG_SECURE);
     }
 }

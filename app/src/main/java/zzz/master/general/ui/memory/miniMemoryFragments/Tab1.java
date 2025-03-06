@@ -27,11 +27,11 @@ public class Tab1 extends Fragment {
     /**
      * SharedPreferences
      * _________________
-     * MF_random_number - Número aleatorio a recordar (String)
-     * MF_random_grade  - Número de cifras del número aleatorio (String)
-     * MF_is_time       - Bandera para determinar si el tiempo ha concluido (Boolean)
-     * MF_strike        - Número de intentos fallidos (String)
-     * MF_max_score     - Máximo puntaje (String)
+     * MF_t1_random_number - Número aleatorio a recordar (String)
+     * MF_t1_random_grade  - Número de cifras del número aleatorio (String)
+     * MF_t1_state         - Estado actual (String)
+     * MF_t1_strike        - Número de intentos fallidos (String)
+     * MF_t1_max_score     - Máximo puntaje (String)
      */
 
     private MemoryViewModel memoryViewModel;
@@ -52,66 +52,94 @@ public class Tab1 extends Fragment {
         Button startButton = view.findViewById(R.id.btn_start);
         Button tempButton = view.findViewById(R.id.btn_temp);
 
+        // Re-Display
+        memoryViewModel.setT1RandomNumber(prefsUtil.getString("MF_t1_random_number","00000"));
+        memoryViewModel.getT1RandomNumber().observe(getViewLifecycleOwner(), numberTextView::setText);
+        memoryViewModel.setT1UIState(prefsUtil.getString("MF_t1_state","zeroday"));
+
+        // Manejo de estados
+        memoryViewModel.getT1UIState().observe(getViewLifecycleOwner(), state -> {
+            if (state != null && state.size() == 5) {
+                generate_checkButton.setEnabled(state.get(0)); // G
+                generate_checkButton.setAlpha(state.get(0) ? 1.0f : 0.5f);
+                generate_checkButton.setText(state.get(0) ? R.string.MF_tab1_btn_generate : R.string.MF_tab1_btn_check);
+
+                startButton.setEnabled(state.get(1)); // I
+                startButton.setAlpha(state.get(1) ? 1.0f : 0.5f);
+
+                tempButton.setEnabled(state.get(2)); // T
+                tempButton.setAlpha(state.get(2) ? 1.0f : 0.5f);
+
+                if(!state.get(3)) {
+                    numberTextView.setText("*".repeat(Integer.parseInt(prefsUtil.getString("MF_t1_random_grade","5"))));
+                }else{
+                    numberTextView.setText(prefsUtil.getString("MF_t1_random_number","00000"));
+                }
+
+                inputNumber.setVisibility(state.get(4) ? View.VISIBLE : View.GONE); // E
+                inputNumber.setEnabled(state.get(4));
+                inputNumber.setText("");
+            }
+        });
+
         // Actualización del máximo
         maxScoreTextView.setText(getString(R.string.MF_tab1_tv_max_score,
-                prefsUtil.getString("MF_max_score", "0")));
+                prefsUtil.getString("MF_t1_max_score", "0")));
 
         // Botón de generar-verificar
         generate_checkButton.setOnClickListener(view1 -> {
-            if(prefsUtil.getBoolean("MF_is_time",true)){ // VERIFICAR
-                if(inputNumber.getText().toString().equals(prefsUtil.getString("MF_random_number","00000"))){ // CORRECTO
+            if(prefsUtil.getString("MF_t1_state","zeroday").equals("waited")){ // VERIFICAR"
+                if(inputNumber.getText().toString().equals(prefsUtil.getString("MF_t1_random_number","00000"))){ // CORRECTO
                     Toast.makeText(requireContext(), R.string.correct, Toast.LENGTH_SHORT).show();
 
                     // Actualización del máximo
-                    int maxScore = Integer.parseInt(prefsUtil.getString("MF_max_score","0"));
-                    int currentGrade = Integer.parseInt(prefsUtil.getString("MF_random_grade","5"));
-                    prefsUtil.setString("MF_max_score", currentGrade>maxScore ? String.valueOf(currentGrade) : String.valueOf(maxScore));
-                    maxScoreTextView.setText(getString(R.string.MF_tab1_tv_max_score,
-                            prefsUtil.getString("MF_max_score", "0")));
-                    prefsUtil.setString("MF_random_grade",manage_range(prefsUtil,true).toString());
+                    int maxScore = Integer.parseInt(prefsUtil.getString("MF_t1_max_score","0"));
+                    int currentGrade = Integer.parseInt(prefsUtil.getString("MF_t1_random_grade","5"));
+                    prefsUtil.setString("MF_t1_max_score", currentGrade>maxScore ? String.valueOf(currentGrade) : String.valueOf(maxScore));
+                    maxScoreTextView.setText(
+                            getString(R.string.MF_tab1_tv_max_score,
+                                    prefsUtil.getString("MF_t1_max_score", "0")));
+                    prefsUtil.setString("MF_t1_random_grade",manage_range(prefsUtil,true).toString());
 
                     // Aparición de la animación
-                    memoryViewModel.setItemVisibility(true);
-                    makeDisable(generate_checkButton);
+                    memoryViewModel.setGifVisibility(true);
+                    generate_checkButton.setEnabled(false);
                     new Handler(Looper.getMainLooper()).postDelayed(() -> {
-                        memoryViewModel.setItemVisibility(false);
-                        makeEnable(generate_checkButton);
+                        memoryViewModel.setGifVisibility(false);
                     }, 800);
                 }
                 else{ // INCORRECTO
                     Toast.makeText(requireContext(), R.string.incorrect, Toast.LENGTH_SHORT).show();
-                    prefsUtil.setString("MF_random_grade",manage_range(prefsUtil,false).toString());
+                    prefsUtil.setString("MF_t1_random_grade",manage_range(prefsUtil,false).toString());
                 }
 
                 // Resetear UI
-                prefsUtil.setBoolean("MF_is_time",false);
-                numberTextView.setText(prefsUtil.getString("MF_random_number","00000"));
-                inputNumber.setVisibility(View.GONE);
-                inputNumber.setText("");
-                generate_checkButton.setText(R.string.MF_tab1_btn_generate);
-                makeDisable(inputNumber, startButton, tempButton);
+                memoryViewModel.getT1RandomNumber().observe(getViewLifecycleOwner(), numberTextView::setText);
+                memoryViewModel.setT1UIState("zeroday");
+                prefsUtil.setString("MF_t1_state","zeroday");
+                // generate_checkButton.setText(R.string.MF_tab1_btn_generate);
             }else{ // GENERAR
-                prefsUtil.setString("MF_random_number",random_digit(Integer.parseInt(prefsUtil.getString("MF_random_grade","5"))));
-                numberTextView.setText(prefsUtil.getString("MF_random_number","00000"));
-                makeDisable(generate_checkButton);
-                makeEnable(startButton, tempButton);
+                String generatedRandNum = random_digit(Integer.parseInt(prefsUtil.getString("MF_t1_random_grade","5")));
+                memoryViewModel.setT1UIState("generated");
+                memoryViewModel.setT1RandomNumber(generatedRandNum);
+                prefsUtil.setString("MF_t1_state","generated");
+                prefsUtil.setString("MF_t1_random_number",generatedRandNum);
             }
         });
 
         // Botón de iniciar
         startButton.setOnClickListener(view2 -> {
-            numberTextView.setText("*".repeat(Integer.parseInt(prefsUtil.getString("MF_random_grade","5"))));
-            makeEnable(tempButton);
-            makeDisable(generate_checkButton, startButton);
+            memoryViewModel.setT1UIState("hidden");
+            prefsUtil.setString("MF_t1_state","hidden");
         });
 
         // Botón temporal que simula el paso del tiempo
         tempButton.setOnClickListener(view3 -> {
-            prefsUtil.setBoolean("MF_is_time",true);
-            inputNumber.setVisibility(View.VISIBLE);
-            makeEnable(inputNumber, generate_checkButton);
-            makeDisable(tempButton);
+            memoryViewModel.setT1UIState("waited");
+            prefsUtil.setString("MF_t1_state","waited");
             generate_checkButton.setText(R.string.MF_tab1_btn_check);
+
+            // Input focus
             new Handler(Looper.getMainLooper()).postDelayed(inputNumber::requestFocus, 100);
             new Handler(Looper.getMainLooper()).postDelayed(() -> {
                 InputMethodManager imm = (InputMethodManager) requireContext().getSystemService(Context.INPUT_METHOD_SERVICE);
@@ -119,11 +147,9 @@ public class Tab1 extends Fragment {
                     imm.showSoftInput(inputNumber, InputMethodManager.SHOW_IMPLICIT);
                 }
             }, 100);
-
-
         });
 
-        return view; // inflater.inflate(R.layout.fragment_memory_tab1, container, false);
+        return view;
     }
 
     private String random_digit (int n){
@@ -136,47 +162,23 @@ public class Tab1 extends Fragment {
     }
 
     private Integer manage_range (PrefsUtil prefsUtil, boolean moreorless){
-        int grade = Integer.parseInt(prefsUtil.getString("MF_random_grade","5"));
+        int grade = Integer.parseInt(prefsUtil.getString("MF_t1_random_grade","5"));
 
         if(moreorless){
-            prefsUtil.deleteKey("MF_strike");
+            prefsUtil.deleteKey("MF_t1_strike");
             return grade+1;
         }else{
-            int dif = grade - 5 - 1;
-            int strike = Integer.parseInt(prefsUtil.getString("MF_strike","0"));
-            if(strike==0 && prefsUtil.getBoolean("MF_is_time",false)){
-                if(dif==0){
-                    prefsUtil.deleteKey("MF_strike");
-                    return grade-1;
+            if(grade == 5){return grade;}
+            if (grade > 7) {
+                int attempts = grade - 6;
+                int strikes = Integer.parseInt(prefsUtil.getString("MF_t1_strike", "0"));
+                if (strikes < attempts) {
+                    prefsUtil.setString("MF_t1_strike", String.valueOf(strikes + 1));
+                    return grade;
                 }
-                prefsUtil.setString("MF_strike",String.valueOf(dif));
-                return grade;
-            }else{
-                prefsUtil.setString("MF_strike",String.valueOf(strike-1));
-                if((strike-1)==0) prefsUtil.deleteKey("MF_strike");
-                return prefsUtil.getString("MF_strike","").isEmpty() ? grade-1 : grade;
+                prefsUtil.deleteKey("MF_t1_strike");
             }
+            return grade-1;
         }
     }
-
-    private void makeEnable(View... views) {
-        for (View view : views) {
-            if (view != null) {
-                view.setEnabled(true);
-                view.setAlpha(1.0f);
-            }
-        }
-    }
-
-    private void makeDisable(View... views){
-        for (View view : views) {
-            if (view != null) {
-                view.setEnabled(false);
-                view.setAlpha(0.5f);
-            }
-        }
-    }
-
-
-
 }
