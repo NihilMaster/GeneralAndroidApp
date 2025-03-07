@@ -1,9 +1,13 @@
 package zzz.master.general.ui.memory.miniMemoryFragments;
 
+import android.app.AlarmManager;
+import android.app.PendingIntent;
 import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -16,9 +20,11 @@ import android.widget.Toast;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 
+import java.util.Calendar;
 import java.util.Random;
 
 import zzz.master.general.R;
+import zzz.master.general.receivers.IntentAlarmReceiver;
 import zzz.master.general.ui.memory.MemoryViewModel;
 import zzz.master.general.utils.PrefsUtil;
 
@@ -104,9 +110,8 @@ public class Tab1 extends Fragment {
                     // Aparición de la animación
                     memoryViewModel.setGifVisibility(true);
                     generate_checkButton.setEnabled(false);
-                    new Handler(Looper.getMainLooper()).postDelayed(() -> {
-                        memoryViewModel.setGifVisibility(false);
-                    }, 800);
+                    new Handler(Looper.getMainLooper()).postDelayed(() ->
+                            memoryViewModel.setGifVisibility(false), 800);
                 }
                 else{ // INCORRECTO
                     Toast.makeText(requireContext(), R.string.incorrect, Toast.LENGTH_SHORT).show();
@@ -131,6 +136,7 @@ public class Tab1 extends Fragment {
         startButton.setOnClickListener(view2 -> {
             memoryViewModel.setT1UIState("hidden");
             prefsUtil.setString("MF_t1_state","hidden");
+            scheduleRepeatingAlarm(requireContext());
         });
 
         // Botón temporal que simula el paso del tiempo
@@ -180,5 +186,31 @@ public class Tab1 extends Fragment {
             }
             return grade-1;
         }
+    }
+
+    public void scheduleRepeatingAlarm(Context context) {
+        AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
+        Intent intent = new Intent(context, IntentAlarmReceiver.class);
+        PendingIntent pendingIntent = PendingIntent.getBroadcast(context, 0, intent, PendingIntent.FLAG_IMMUTABLE);
+
+        // Establecer la hora específica (8:00 PM)
+        Calendar calendar = Calendar.getInstance();
+        //calendar.set(Calendar.HOUR_OF_DAY, 20);
+        calendar.set(Calendar.HOUR_OF_DAY, 11);
+        calendar.set(Calendar.MINUTE, 18);
+        calendar.set(Calendar.SECOND, 0);
+
+        // Si la hora ya pasó hoy, programar para mañana
+        if (calendar.getTimeInMillis() < System.currentTimeMillis()) {
+            calendar.add(Calendar.DAY_OF_YEAR, 1);
+        }
+
+        // Programar una alarma inexacta que se repita cada 24 horas
+        alarmManager.setInexactRepeating(
+                AlarmManager.RTC_WAKEUP,   // Usa tiempo real del sistema (despierta si es necesario)
+                calendar.getTimeInMillis(), // Primera ejecución
+                AlarmManager.INTERVAL_DAY, // Se repite cada día
+                pendingIntent
+        );
     }
 }

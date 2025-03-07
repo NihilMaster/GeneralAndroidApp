@@ -48,14 +48,18 @@ public class MemoryFragment extends Fragment {
             }
         });
 
+        // Recuperar el argumento selectedTab
+        Bundle args = getArguments();
+        int selectedTab = args != null ? args.getInt("selectedTab", 0) : 0;
+
         // Configurar el ViewPager2 y el TabLayout
-        setupViewPager();
+        // Asegúrate de que el ViewPager2 y el TabLayout estén configurados correctamente
+        setupViewPager(selectedTab);
 
         return root;
     }
 
-
-    private void setupViewPager() {
+    private void setupViewPager(int selectedTab) {
         // Obtén referencias al TabLayout y ViewPager2
         TabLayout tabLayout = binding.tabLayout;
         ViewPager2 viewPager = binding.viewPager;
@@ -68,6 +72,9 @@ public class MemoryFragment extends Fragment {
         new TabLayoutMediator(tabLayout, viewPager, (tab, position) -> {
             tab.setText("Pestaña " + (position + 1)); // Títulos de las pestañas
         }).attach();
+
+        // Selecciona la pestaña correspondiente al valor de selectedTab
+        viewPager.setCurrentItem(selectedTab, false);
     }
 
     @SuppressLint("SourceLockedOrientationActivity")
