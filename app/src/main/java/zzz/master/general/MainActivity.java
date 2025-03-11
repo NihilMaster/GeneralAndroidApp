@@ -4,6 +4,8 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
+import android.view.View;
+import android.widget.TextView;
 
 import com.google.android.material.snackbar.Snackbar;
 import com.google.android.material.navigation.NavigationView;
@@ -23,7 +25,6 @@ import zzz.master.general.ui.memory.MemoryFragment;
 public class MainActivity extends AppCompatActivity {
 
     private AppBarConfiguration mAppBarConfiguration;
-    //private ActivityMainBinding binding;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -35,12 +36,17 @@ public class MainActivity extends AppCompatActivity {
         // Configuración de la barra de herramientas y el DrawerLayout
         setSupportActionBar(binding.appBarMain.toolbar);
         binding.appBarMain.fab.setOnClickListener(view -> {
-            Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
+            Snackbar snackbar = Snackbar.make(view, R.string.whats_wrong_with_u, Snackbar.LENGTH_LONG)
                     .setAction("Action", null)
-                    .setAnchorView(R.id.fab).show();
+                    .setAnchorView(R.id.fab);
+            View snackbarView = snackbar.getView();
+            TextView textView = snackbarView.findViewById(com.google.android.material.R.id.snackbar_text);
+            textView.setMaxLines(15);
+            snackbar.show();
 
-            IntentAlarmReceiver intentAlarmReceiver = new IntentAlarmReceiver();
-            intentAlarmReceiver.onReceive(getApplicationContext(), new Intent());
+            /// Simulador de Intent del paso del tiempo de notificación de MemoryFragment - Tab1
+            /// IntentAlarmReceiver intentAlarmReceiver = new IntentAlarmReceiver();
+            /// intentAlarmReceiver.onReceive(getApplicationContext(), new Intent());
         });
 
         DrawerLayout drawer = binding.drawerLayout;
@@ -67,7 +73,7 @@ public class MainActivity extends AppCompatActivity {
         if (intent != null && intent.hasExtra("open_fragment")) {
             String fragmentName = intent.getStringExtra("open_fragment");
             if ("MemoryFragment".equals(fragmentName)) {
-                int selectedTab = intent.getIntExtra("tab_position", 3);
+                int selectedTab = intent.getIntExtra("tab_position", 0);
 
                 // Navegar al fragmento MemoryFragment usando el NavController y el Bundle para pasar el tab seleccionado
                 Bundle args = new Bundle();

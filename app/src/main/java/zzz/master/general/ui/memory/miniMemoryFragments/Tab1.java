@@ -20,13 +20,12 @@ import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 
 import java.util.Calendar;
-import java.util.Objects;
 import java.util.Random;
 
 import zzz.master.general.R;
 import zzz.master.general.receivers.IntentAlarmReceiver;
 import zzz.master.general.ui.memory.MemoryViewModel;
-import zzz.master.general.utils.PrefsUtil;
+import zzz.master.general.utils.ShPreferencesUtils;
 
 public class Tab1 extends Fragment {
 
@@ -48,7 +47,7 @@ public class Tab1 extends Fragment {
 
         memoryViewModel = new ViewModelProvider(requireActivity()).get(MemoryViewModel.class);
 
-        PrefsUtil prefsUtil = new PrefsUtil(requireContext());
+        ShPreferencesUtils shPreferencesUtils = new ShPreferencesUtils(requireContext());
 
         // View items
         TextView numberTextView = view.findViewById(R.id.random_number);
@@ -58,10 +57,10 @@ public class Tab1 extends Fragment {
         Button startButton = view.findViewById(R.id.btn_start);
 
         // Re-Display
-        memoryViewModel.setT1RandomNumber(prefsUtil.getString("MF_t1_random_number","00000"));
+        memoryViewModel.setT1RandomNumber(shPreferencesUtils.getString("MF_t1_random_number","00000"));
         memoryViewModel.getT1RandomNumber().observe(getViewLifecycleOwner(), numberTextView::setText);
-        memoryViewModel.setT1UIState(prefsUtil.getString("MF_t1_state","zeroday"));
-        if(prefsUtil.getString("MF_t1_state","zeroday").equals("waited")){
+        memoryViewModel.setT1UIState(shPreferencesUtils.getString("MF_t1_state","zeroday"));
+        if(shPreferencesUtils.getString("MF_t1_state","zeroday").equals("waited")){
             memoryViewModel.setT1UIState("waited");
 
             // Input focus
@@ -86,9 +85,9 @@ public class Tab1 extends Fragment {
                 startButton.setAlpha(state.get(1) ? 1.0f : 0.5f);
 
                 if(!state.get(2)) { // N
-                    numberTextView.setText("*".repeat(Integer.parseInt(prefsUtil.getString("MF_t1_random_grade","5"))));
+                    numberTextView.setText("*".repeat(Integer.parseInt(shPreferencesUtils.getString("MF_t1_random_grade","5"))));
                 }else{
-                    numberTextView.setText(prefsUtil.getString("MF_t1_random_number","00000"));
+                    numberTextView.setText(shPreferencesUtils.getString("MF_t1_random_number","00000"));
                 }
 
                 inputNumber.setVisibility(state.get(3) ? View.VISIBLE : View.GONE); // E
@@ -99,22 +98,22 @@ public class Tab1 extends Fragment {
 
         // Actualización del máximo
         maxScoreTextView.setText(getString(R.string.MF_tab1_tv_max_score,
-                prefsUtil.getString("MF_t1_max_score", "0")));
+                shPreferencesUtils.getString("MF_t1_max_score", "0")));
 
         // Botón de generar-verificar
         generate_checkButton.setOnClickListener(view1 -> {
-            if(prefsUtil.getString("MF_t1_state","zeroday").equals("waited")){ // VERIFICAR"
-                if(inputNumber.getText().toString().equals(prefsUtil.getString("MF_t1_random_number","00000"))){ // CORRECTO
+            if(shPreferencesUtils.getString("MF_t1_state","zeroday").equals("waited")){ // VERIFICAR"
+                if(inputNumber.getText().toString().equals(shPreferencesUtils.getString("MF_t1_random_number","00000"))){ // CORRECTO
                     Toast.makeText(requireContext(), R.string.correct, Toast.LENGTH_SHORT).show();
 
                     // Actualización del máximo
-                    int maxScore = Integer.parseInt(prefsUtil.getString("MF_t1_max_score","0"));
-                    int currentGrade = Integer.parseInt(prefsUtil.getString("MF_t1_random_grade","5"));
-                    prefsUtil.setString("MF_t1_max_score", currentGrade>maxScore ? String.valueOf(currentGrade) : String.valueOf(maxScore));
+                    int maxScore = Integer.parseInt(shPreferencesUtils.getString("MF_t1_max_score","0"));
+                    int currentGrade = Integer.parseInt(shPreferencesUtils.getString("MF_t1_random_grade","5"));
+                    shPreferencesUtils.setString("MF_t1_max_score", currentGrade>maxScore ? String.valueOf(currentGrade) : String.valueOf(maxScore));
                     maxScoreTextView.setText(
                             getString(R.string.MF_tab1_tv_max_score,
-                                    prefsUtil.getString("MF_t1_max_score", "0")));
-                    prefsUtil.setString("MF_t1_random_grade",manage_range(prefsUtil,true).toString());
+                                    shPreferencesUtils.getString("MF_t1_max_score", "0")));
+                    shPreferencesUtils.setString("MF_t1_random_grade",manage_range(shPreferencesUtils,true).toString());
 
                     // Aparición de la animación
                     memoryViewModel.setGifVisibility(true);
@@ -124,26 +123,26 @@ public class Tab1 extends Fragment {
                 }
                 else{ // INCORRECTO
                     Toast.makeText(requireContext(), R.string.incorrect, Toast.LENGTH_SHORT).show();
-                    prefsUtil.setString("MF_t1_random_grade",manage_range(prefsUtil,false).toString());
+                    shPreferencesUtils.setString("MF_t1_random_grade",manage_range(shPreferencesUtils,false).toString());
                 }
 
                 // Resetear UI
                 memoryViewModel.getT1RandomNumber().observe(getViewLifecycleOwner(), numberTextView::setText);
                 memoryViewModel.setT1UIState("zeroday");
-                prefsUtil.setString("MF_t1_state","zeroday");
+                shPreferencesUtils.setString("MF_t1_state","zeroday");
             }else{ // GENERAR
-                String generatedRandNum = random_digit(Integer.parseInt(prefsUtil.getString("MF_t1_random_grade","5")));
+                String generatedRandNum = random_digit(Integer.parseInt(shPreferencesUtils.getString("MF_t1_random_grade","5")));
                 memoryViewModel.setT1UIState("generated");
                 memoryViewModel.setT1RandomNumber(generatedRandNum);
-                prefsUtil.setString("MF_t1_state","generated");
-                prefsUtil.setString("MF_t1_random_number",generatedRandNum);
+                shPreferencesUtils.setString("MF_t1_state","generated");
+                shPreferencesUtils.setString("MF_t1_random_number",generatedRandNum);
             }
         });
 
         // Botón de iniciar
         startButton.setOnClickListener(view2 -> {
             memoryViewModel.setT1UIState("hidden");
-            prefsUtil.setString("MF_t1_state","hidden");
+            shPreferencesUtils.setString("MF_t1_state","hidden");
             scheduleRepeatingAlarm(requireContext());
         });
 
@@ -159,22 +158,22 @@ public class Tab1 extends Fragment {
         return str.toString();
     }
 
-    private Integer manage_range (PrefsUtil prefsUtil, boolean moreorless){
-        int grade = Integer.parseInt(prefsUtil.getString("MF_t1_random_grade","5"));
+    private Integer manage_range (ShPreferencesUtils shPreferencesUtils, boolean moreorless){
+        int grade = Integer.parseInt(shPreferencesUtils.getString("MF_t1_random_grade","5"));
 
         if(moreorless){
-            prefsUtil.deleteKey("MF_t1_strike");
+            shPreferencesUtils.deleteKey("MF_t1_strike");
             return grade+1;
         }else{
             if(grade == 5){return grade;}
             if (grade > 7) {
                 int attempts = grade - 6;
-                int strikes = Integer.parseInt(prefsUtil.getString("MF_t1_strike", "0"));
+                int strikes = Integer.parseInt(shPreferencesUtils.getString("MF_t1_strike", "0"));
                 if (strikes < attempts) {
-                    prefsUtil.setString("MF_t1_strike", String.valueOf(strikes + 1));
+                    shPreferencesUtils.setString("MF_t1_strike", String.valueOf(strikes + 1));
                     return grade;
                 }
-                prefsUtil.deleteKey("MF_t1_strike");
+                shPreferencesUtils.deleteKey("MF_t1_strike");
             }
             return grade-1;
         }

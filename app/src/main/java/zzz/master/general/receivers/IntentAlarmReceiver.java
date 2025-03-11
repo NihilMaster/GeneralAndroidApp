@@ -7,21 +7,20 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Build;
-import android.util.Log;
 
 import androidx.core.app.NotificationCompat;
 
 import zzz.master.general.MainActivity;
 import zzz.master.general.R;
-import zzz.master.general.utils.PrefsUtil;
+import zzz.master.general.utils.ShPreferencesUtils;
 
 public class IntentAlarmReceiver extends BroadcastReceiver {
     @Override
     public void onReceive(Context context, Intent intent) {
 
         // Actualizar SharedPreferences
-        PrefsUtil prefsUtil = new PrefsUtil(context);
-        prefsUtil.setString("MF_t1_state", "waited");
+        ShPreferencesUtils shPreferencesUtils = new ShPreferencesUtils(context);
+        shPreferencesUtils.setString("MF_t1_state", "waited");
 
         // Mostrar notificación
         sendNotification(context);
