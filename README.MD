@@ -9,7 +9,7 @@ en el proceso de aprender Android voy necesitando e implementando.
 
 ## Funciones
 
-### Memory Fragment
+### Memory Fragment 
 
 Esta funcionalidad contempla una serie de juegos de memoria. #F1
 
@@ -34,4 +34,12 @@ Esta funcionalidad contempla una serie de juegos de memoria. #F1
 - MF_t1_state         - Estado actual (String)
 - MF_t1_strike        - Número de intentos fallidos (String)
 - MF_t1_max_score     - Máximo puntaje (String)
+
+### Cognitive Fragment
+
+#F2
+
+Pronto...
+
+---
 

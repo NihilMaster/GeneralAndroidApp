@@ -13,4 +13,15 @@ public class Tab2 extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         return inflater.inflate(R.layout.fragment_memory_tab2, container, false);
     }
+
+    /**
+     * // Input focus
+     * new Handler(Looper.getMainLooper()).postDelayed(inputNumber::requestFocus, 100);
+     * new Handler(Looper.getMainLooper()).postDelayed(() -> {
+     *      InputMethodManager imm = (InputMethodManager) requireContext().getSystemService(Context.INPUT_METHOD_SERVICE);
+     *      if (imm != null) {
+     *          imm.showSoftInput(inputNumber, InputMethodManager.SHOW_IMPLICIT);
+     *       }
+     * }, 100);
+     */
 }

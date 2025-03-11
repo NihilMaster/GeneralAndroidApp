@@ -7,7 +7,6 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -21,6 +20,7 @@ import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 
 import java.util.Calendar;
+import java.util.Objects;
 import java.util.Random;
 
 import zzz.master.general.R;
@@ -56,16 +56,28 @@ public class Tab1 extends Fragment {
         EditText inputNumber = view.findViewById(R.id.input_number);
         Button generate_checkButton = view.findViewById(R.id.btn_gen_check);
         Button startButton = view.findViewById(R.id.btn_start);
-        Button tempButton = view.findViewById(R.id.btn_temp);
 
         // Re-Display
         memoryViewModel.setT1RandomNumber(prefsUtil.getString("MF_t1_random_number","00000"));
         memoryViewModel.getT1RandomNumber().observe(getViewLifecycleOwner(), numberTextView::setText);
         memoryViewModel.setT1UIState(prefsUtil.getString("MF_t1_state","zeroday"));
+        if(prefsUtil.getString("MF_t1_state","zeroday").equals("waited")){
+            memoryViewModel.setT1UIState("waited");
+
+            // Input focus
+            new Handler(Looper.getMainLooper()).postDelayed(inputNumber::requestFocus, 100);
+            new Handler(Looper.getMainLooper()).postDelayed(() -> {
+                InputMethodManager imm = (InputMethodManager) requireContext().getSystemService(Context.INPUT_METHOD_SERVICE);
+                if (imm != null) {
+                    imm.showSoftInput(inputNumber, InputMethodManager.SHOW_IMPLICIT);
+                    generate_checkButton.setText(R.string.MF_tab1_btn_check);
+                }
+            }, 100);
+        }
 
         // Manejo de estados
         memoryViewModel.getT1UIState().observe(getViewLifecycleOwner(), state -> {
-            if (state != null && state.size() == 5) {
+            if (state != null && state.size() == 4) {
                 generate_checkButton.setEnabled(state.get(0)); // G
                 generate_checkButton.setAlpha(state.get(0) ? 1.0f : 0.5f);
                 generate_checkButton.setText(state.get(0) ? R.string.MF_tab1_btn_generate : R.string.MF_tab1_btn_check);
@@ -73,17 +85,14 @@ public class Tab1 extends Fragment {
                 startButton.setEnabled(state.get(1)); // I
                 startButton.setAlpha(state.get(1) ? 1.0f : 0.5f);
 
-                tempButton.setEnabled(state.get(2)); // T
-                tempButton.setAlpha(state.get(2) ? 1.0f : 0.5f);
-
-                if(!state.get(3)) {
+                if(!state.get(2)) { // N
                     numberTextView.setText("*".repeat(Integer.parseInt(prefsUtil.getString("MF_t1_random_grade","5"))));
                 }else{
                     numberTextView.setText(prefsUtil.getString("MF_t1_random_number","00000"));
                 }
 
-                inputNumber.setVisibility(state.get(4) ? View.VISIBLE : View.GONE); // E
-                inputNumber.setEnabled(state.get(4));
+                inputNumber.setVisibility(state.get(3) ? View.VISIBLE : View.GONE); // E
+                inputNumber.setEnabled(state.get(3));
                 inputNumber.setText("");
             }
         });
@@ -122,7 +131,6 @@ public class Tab1 extends Fragment {
                 memoryViewModel.getT1RandomNumber().observe(getViewLifecycleOwner(), numberTextView::setText);
                 memoryViewModel.setT1UIState("zeroday");
                 prefsUtil.setString("MF_t1_state","zeroday");
-                // generate_checkButton.setText(R.string.MF_tab1_btn_generate);
             }else{ // GENERAR
                 String generatedRandNum = random_digit(Integer.parseInt(prefsUtil.getString("MF_t1_random_grade","5")));
                 memoryViewModel.setT1UIState("generated");
@@ -137,22 +145,6 @@ public class Tab1 extends Fragment {
             memoryViewModel.setT1UIState("hidden");
             prefsUtil.setString("MF_t1_state","hidden");
             scheduleRepeatingAlarm(requireContext());
-        });
-
-        // Botón temporal que simula el paso del tiempo
-        tempButton.setOnClickListener(view3 -> {
-            memoryViewModel.setT1UIState("waited");
-            prefsUtil.setString("MF_t1_state","waited");
-            generate_checkButton.setText(R.string.MF_tab1_btn_check);
-
-            // Input focus
-            new Handler(Looper.getMainLooper()).postDelayed(inputNumber::requestFocus, 100);
-            new Handler(Looper.getMainLooper()).postDelayed(() -> {
-                InputMethodManager imm = (InputMethodManager) requireContext().getSystemService(Context.INPUT_METHOD_SERVICE);
-                if (imm != null) {
-                    imm.showSoftInput(inputNumber, InputMethodManager.SHOW_IMPLICIT);
-                }
-            }, 100);
         });
 
         return view;
@@ -195,9 +187,8 @@ public class Tab1 extends Fragment {
 
         // Establecer la hora específica (8:00 PM)
         Calendar calendar = Calendar.getInstance();
-        //calendar.set(Calendar.HOUR_OF_DAY, 20);
-        calendar.set(Calendar.HOUR_OF_DAY, 11);
-        calendar.set(Calendar.MINUTE, 18);
+        calendar.set(Calendar.HOUR_OF_DAY, 20);
+        calendar.set(Calendar.MINUTE, 0);
         calendar.set(Calendar.SECOND, 0);
 
         // Si la hora ya pasó hoy, programar para mañana

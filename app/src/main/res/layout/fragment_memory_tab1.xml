@@ -58,13 +58,6 @@
             android:textColor="@color/memory_light_items"
             android:backgroundTint="@color/memory_dark_items"/>
 
-        <Button
-            android:id="@+id/btn_temp"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:backgroundTint="@color/black"
-            android:text="Temporal"/>
-
     </LinearLayout>
 
     <TextView

@@ -26,11 +26,11 @@ public class MemoryViewModel extends ViewModel {
 
     private List<Boolean> getT1UIStateDefinition(String stateName){
         Map<String, List<Boolean>> states = Map.of(
-                "generated", List.of(false, true, false, true, false),
-                "hidden",    List.of(false, false, true, false, false),
-                "waited",    List.of(true, false, false, false, true),
-                "zeroday", List.of(true, false, false, true, false)
-        );                       // G, I, T, N, E
+                "generated", List.of(false, true, true, false),
+                "hidden",    List.of(false, false, false, false),
+                "waited",    List.of(true, false, false, true),
+                "zeroday", List.of(true, false, true, false)
+        );                       // G, I, N, E
 
         return states.getOrDefault(stateName, states.get("zeroday"));
     }
