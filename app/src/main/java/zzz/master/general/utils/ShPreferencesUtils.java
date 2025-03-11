@@ -3,13 +3,13 @@ package zzz.master.general.utils;
 import android.content.Context;
 import android.content.SharedPreferences;
 
-public class PrefsUtil {
+public class ShPreferencesUtils {
 
     private static final String PREFS_NAME = "my_app_prefs"; // Nombre del archivo SharedPreferences
     private final SharedPreferences sharedPreferences;
 
     // Constructor
-    public PrefsUtil(Context context) {
+    public ShPreferencesUtils(Context context) {
         sharedPreferences = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
     }
 

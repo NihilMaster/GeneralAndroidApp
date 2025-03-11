@@ -11,7 +11,7 @@ android {
         minSdk 24
         targetSdk 35
         versionCode 1
-        versionName "1.2"
+        versionName "1.35"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -39,23 +39,18 @@ android {
 }
 
 dependencies {
-
     implementation libs.appcompat
     implementation libs.material
     implementation libs.constraintlayout
     implementation libs.lifecycle.livedata.ktx
     implementation libs.lifecycle.viewmodel.ktx
-    implementation libs.navigation.fragment
-    implementation libs.navigation.ui
+    implementation libs.navigation.fragment.ktx
+    implementation libs.navigation.ui.ktx
     testImplementation libs.junit
     androidTestImplementation libs.ext.junit
     androidTestImplementation libs.espresso.core
 
     implementation libs.viewpager2
 
-    implementation libs.navigation.fragment.ktx
-    implementation libs.navigation.ui.ktx
-
     implementation libs.glide
-    implementation libs.okhttp3.integration
 }

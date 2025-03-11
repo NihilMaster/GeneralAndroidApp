@@ -21,11 +21,13 @@ import com.google.android.material.tabs.TabLayoutMediator;
 import zzz.master.general.R;
 import zzz.master.general.databinding.FragmentMemoryBinding;
 import zzz.master.general.ui.adapters.ViewPagerAdapter;
+import zzz.master.general.utils.PermissionUtils;
 
 public class MemoryFragment extends Fragment {
 
     private FragmentMemoryBinding binding;
     private MediaPlayer mediaPlayer;
+    private PermissionUtils permissionUtils;
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater,
@@ -53,8 +55,10 @@ public class MemoryFragment extends Fragment {
         int selectedTab = args != null ? args.getInt("selectedTab", 0) : 0;
 
         // Configurar el ViewPager2 y el TabLayout
-        // Asegúrate de que el ViewPager2 y el TabLayout estén configurados correctamente
         setupViewPager(selectedTab);
+
+        // Inicializar el utils de permisos
+        permissionUtils = new PermissionUtils(this);
 
         return root;
     }
@@ -75,6 +79,19 @@ public class MemoryFragment extends Fragment {
 
         // Selecciona la pestaña correspondiente al valor de selectedTab
         viewPager.setCurrentItem(selectedTab, false);
+    }
+
+    // Solicitar el permiso de notificación
+    private void requestNotificationPermission() {
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.TIRAMISU) { // Android 13+
+            permissionUtils.requestPermission(android.Manifest.permission.POST_NOTIFICATIONS, requireActivity());
+        }
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        requestNotificationPermission();
     }
 
     @SuppressLint("SourceLockedOrientationActivity")
